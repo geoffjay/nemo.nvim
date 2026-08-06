@@ -31,8 +31,14 @@ A `.nemo` file is a Vue-like single-file component. The grammar models:
 ## Requirements
 
 - Neovim ≥ 0.9 (native tree-sitter). Tested on 0.12.
-- A C compiler (`cc`) to build the parser, **or** nvim-treesitter to build it
-  for you.
+- **Recommended path — bundled parser:** a C compiler (`cc`). `make` builds
+  `parser/nemo.so` from the committed `src/parser.c`; no `tree-sitter` CLI and
+  no nvim-treesitter needed.
+- **Alternative — `:TSInstall nemo`:** the `tree-sitter` CLI on your `PATH`
+  (`brew install tree-sitter` or `cargo install tree-sitter-cli`).
+  nvim-treesitter's `main` branch shells out to `tree-sitter build`; without the
+  CLI `:TSInstall` will fail. Both the `main` and `master` branches are
+  supported by `require("nemo").setup()`.
 - Optional but recommended sibling parsers for the injected languages:
   `:TSInstall rhai css` (highlighting degrades gracefully without them).
 
@@ -77,14 +83,18 @@ cd ~/.local/share/nvim/site/pack/plugins/start/nemo.nvim && make
 directory is on Neovim's `runtimepath`, `vim.treesitter` loads it automatically
 for the `nemo` filetype — no nvim-treesitter required.
 
-If you use **nvim-treesitter**, `require("nemo").setup()` registers the grammar
-so you can instead run:
+If you use **nvim-treesitter** (either the `main` or `master` branch),
+`require("nemo").setup()` registers the grammar so you can instead run:
 
 ```
 :TSInstall nemo
 ```
 
-Either path installs the same parser; you do not need both.
+On the `main` branch `nemo` is added via the `User TSUpdate` hook, so it appears
+in `:TSInstall` completion once `setup()` has run (i.e. after a `.nemo` buffer
+has loaded the plugin, unless you load it eagerly). This path compiles with the
+`tree-sitter` CLI — see Requirements. The bundled `make` parser needs neither
+nvim-treesitter nor the CLI, so you rarely need `:TSInstall`.
 
 ## Development
 

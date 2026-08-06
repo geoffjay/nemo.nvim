@@ -17,33 +17,55 @@ local function plugin_root()
   return vim.fn.fnamemodify(source, ":h:h:h")
 end
 
--- Register the parser with nvim-treesitter (classic API) so `:TSInstall nemo`
--- builds it from this repo. No-op when nvim-treesitter is absent.
+-- Register the grammar with nvim-treesitter so `:TSInstall nemo` works.
+-- Supports both the `main` (rewrite) and `master` (classic) branches. No-op
+-- when nvim-treesitter is absent. Building via `:TSInstall` needs the
+-- `tree-sitter` CLI on PATH; the bundled `parser/nemo.so` (via `make`) does not.
 local function register_with_nvim_treesitter()
   local ok, parsers = pcall(require, "nvim-treesitter.parsers")
   if not ok then
     return
   end
 
-  local get_configs = parsers.get_parser_configs or parsers.configs
-  if type(get_configs) ~= "function" then
+  local root = plugin_root()
+
+  -- master branch (classic): parsers.get_parser_configs() -> config table.
+  if type(parsers.get_parser_configs) == "function" then
+    local configs = parsers.get_parser_configs()
+    if not configs.nemo then
+      configs.nemo = {
+        install_info = {
+          url = root,
+          files = { "src/parser.c", "src/scanner.c" },
+          generate_requires_npm = false,
+          requires_generate_from_grammar = false,
+        },
+        filetype = "nemo",
+      }
+    end
     return
   end
 
-  local configs = get_configs()
-  if configs.nemo then
-    return
+  -- main branch (rewrite): `parsers` is a table<lang, ParserInfo>. Custom
+  -- parsers are added on the `User TSUpdate` event, which `get_available()`
+  -- (the source of `:TSInstall` completion) fires before reading the table.
+  local function add()
+    local p = require("nvim-treesitter.parsers")
+    if not p.nemo then
+      p.nemo = {
+        install_info = {
+          path = root,          -- local dir; compiled in place, no download
+          queries = "queries/nemo",
+          generate = false,     -- src/parser.c is committed
+          generate_from_json = false,
+        },
+        tier = 3,
+      }
+    end
   end
 
-  configs.nemo = {
-    install_info = {
-      url = plugin_root(),
-      files = { "src/parser.c", "src/scanner.c" },
-      generate_requires_npm = false,
-      requires_generate_from_grammar = false,
-    },
-    filetype = "nemo",
-  }
+  add()
+  vim.api.nvim_create_autocmd("User", { pattern = "TSUpdate", callback = add })
 end
 
 function M.setup(_opts)
