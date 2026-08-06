@@ -42,7 +42,7 @@ A `.nemo` file is a Vue-like single-file component. The grammar models:
 
 ```lua
 {
-  "geoffjay/nemo.nvim",       -- adjust to your fork/remote
+  "geoffjay/nemo.nvim",
   build = "make",             -- compiles parser/nemo.so
   ft = "nemo",
   config = function()

@@ -16,7 +16,7 @@
     "license": "MIT",
     "description": "Tree-sitter grammar for Nemo single-file components (.nemo SFC)",
     "links": {
-      "repository": "https://github.com/tree-sitter/tree-sitter-nemo"
+      "repository": "https://github.com/geoffjay/nemo.nvim"
     }
   },
   "bindings": {
