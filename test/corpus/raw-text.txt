@@ -1,0 +1,57 @@
+==================
+Raw-text script (Rhai) and style (CSS) blocks need no CDATA
+==================
+
+<script>
+fn go(id, ev) { if a && b > 0 { x } }
+</script>
+<style>
+panel { padding: 8px; }
+</style>
+
+---
+
+(document
+  (script_element
+    (tag_name)
+    (raw_text)
+    (tag_name))
+  (style_element
+    (tag_name)
+    (raw_text)
+    (tag_name)))
+
+==================
+Self-closing script with src is not a raw-text body
+==================
+
+<script src="./scripts" on-load="init" />
+
+---
+
+(document
+  (script_element
+    (tag_name)
+    (attribute
+      (regular_attribute
+        (attribute_name)
+        (quoted_value_double
+          (attribute_value))))
+    (attribute
+      (regular_attribute
+        (handler_name)
+        (quoted_value_double
+          (attribute_value))))))
+
+==================
+Empty script yields no raw_text node
+==================
+
+<script></script>
+
+---
+
+(document
+  (script_element
+    (tag_name)
+    (tag_name)))

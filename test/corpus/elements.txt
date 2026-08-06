@@ -1,0 +1,41 @@
+==================
+Element with interpolation, handler, and binding attributes
+==================
+
+<template name="app">
+  <button label="${label}" on-click="go" bind-text="data.x" />
+</template>
+
+---
+
+(document
+  (element
+    (start_tag
+      (tag_name)
+      (attribute
+        (regular_attribute
+          (attribute_name)
+          (quoted_value_double
+            (attribute_value)))))
+    (element
+      (self_closing_tag
+        (tag_name)
+        (attribute
+          (regular_attribute
+            (attribute_name)
+            (quoted_value_double
+              (interpolation
+                (interp_path
+                  (interp_identifier))))))
+        (attribute
+          (regular_attribute
+            (handler_name)
+            (quoted_value_double
+              (attribute_value))))
+        (attribute
+          (regular_attribute
+            (binding_name)
+            (quoted_value_double
+              (attribute_value))))))
+    (end_tag
+      (tag_name))))

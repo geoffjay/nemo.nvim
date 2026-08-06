@@ -1,0 +1,53 @@
+==================
+n:for over static array, n:key, and n:if comparison
+==================
+
+<label n:for="t in ['a','b']" n:key="t" text="#${t}" />
+<panel n:if="data.ui.show == 'yes'" />
+
+---
+
+(document
+  (element
+    (self_closing_tag
+      (tag_name)
+      (attribute
+        (directive_attribute
+          (directive_name)
+          (directive_value
+            (directive_expression
+              (dir_path
+                (dir_identifier))
+              (keyword_in)
+              (dir_array
+                (dir_string)
+                (dir_string))))))
+      (attribute
+        (directive_attribute
+          (directive_name)
+          (directive_value
+            (directive_expression
+              (dir_path
+                (dir_identifier))))))
+      (attribute
+        (regular_attribute
+          (attribute_name)
+          (quoted_value_double
+            (attribute_value)
+            (interpolation
+              (interp_path
+                (interp_identifier))))))))
+  (element
+    (self_closing_tag
+      (tag_name)
+      (attribute
+        (directive_attribute
+          (directive_name)
+          (directive_value
+            (directive_expression
+              (dir_path
+                (dir_identifier)
+                (dir_identifier)
+                (dir_identifier))
+              (dir_op)
+              (dir_string))))))))
