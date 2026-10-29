@@ -59,6 +59,13 @@
   . (dir_identifier) @variable.builtin
   (#any-of? @variable.builtin "data" "var" "env" "route" "item" "loop"))
 
+; ---- {{ var }} template variables ------------------------------------------
+;
+; A top-level inline <script> `let`/`const` value interpolated at load time.
+; Single-token node, so recapture the name inside it.
+
+(template_variable) @variable
+
 ; ---- ${ ... } interpolation ------------------------------------------------
 
 [

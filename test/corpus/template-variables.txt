@@ -1,0 +1,108 @@
+==================
+Template variables in text bodies and attribute values
+==================
+
+<template name="component-page-button">
+  <text slot="code">{{ default_code }}</text>
+  <label text="count: {{ count }}" />
+</template>
+
+---
+
+(document
+  (element
+    (start_tag
+      (tag_name)
+      (attribute
+        (regular_attribute
+          (attribute_name)
+          (quoted_value_double
+            (attribute_value)))))
+    (element
+      (start_tag
+        (tag_name)
+        (attribute
+          (regular_attribute
+            (attribute_name)
+            (quoted_value_double
+              (attribute_value)))))
+      (template_variable)
+      (end_tag
+        (tag_name)))
+    (element
+      (self_closing_tag
+        (tag_name)
+        (attribute
+          (regular_attribute
+            (attribute_name)
+            (quoted_value_double
+              (attribute_value)
+              (template_variable))))))
+    (end_tag
+      (tag_name))))
+
+==================
+Template variables without surrounding spaces
+==================
+
+<text>{{var}}</text>
+
+---
+
+(document
+  (element
+    (start_tag
+      (tag_name))
+    (template_variable)
+    (end_tag
+      (tag_name))))
+
+==================
+Unclosed variable and empty braces stay verbatim text
+==================
+
+<text>unclosed {{ stays</text>
+<text>{{ }} {{ }}</text>
+
+---
+
+(document
+  (element
+    (start_tag
+      (tag_name))
+    (text)
+    (brace_text)
+    (brace_text)
+    (end_tag
+      (tag_name)))
+  (element
+    (start_tag
+      (tag_name))
+    (brace_text)
+    (brace_text)
+    (brace_text)
+    (brace_text)
+    (brace_text)
+    (brace_text)
+    (brace_text)
+    (brace_text)
+    (end_tag
+      (tag_name))))
+
+==================
+Lone braces in text stay verbatim
+==================
+
+<text>json {a: 1} done</text>
+
+---
+
+(document
+  (element
+    (start_tag
+      (tag_name))
+    (text)
+    (brace_text)
+    (brace_text)
+    (end_tag
+      (tag_name))))

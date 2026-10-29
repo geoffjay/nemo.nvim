@@ -19,9 +19,18 @@ syntax match  nemoInterpFunc   /\<\%(upper\|lower\|trim\|length\|coalesce\|env\)
 syntax region nemoInterpString start=/'/ end=/'/ contained
 syntax match  nemoInterpNumber /\<\d\+\%(\.\d\+\)\?\>/ contained
 
+" {{ var }} template variables (top-level <script> let/const values
+" interpolated at load time; unclosed {{ stays verbatim). Matched directly in
+" the buffer (text bodies) and contained in attribute strings; must be
+" contained-in everywhere it can appear.
+syntax match nemoTemplateVar /{{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*}}/ contained
+
+" Text between tags: strings, ${...} interpolations, and {{ var }} variables.
+syntax match nemoInterp contained /\${[^}]*}/
+
 " Attribute string values.
-syntax region nemoString start=/"/ skip=/\\"/ end=/"/ contained contains=nemoInterp
-syntax region nemoString start=/'/ skip=/\\'/ end=/'/ contained contains=nemoInterp
+syntax region nemoString start=/"/ skip=/\\"/ end=/"/ contained contains=nemoInterp,nemoTemplateVar
+syntax region nemoString start=/'/ skip=/\\'/ end=/'/ contained contains=nemoInterp,nemoTemplateVar
 
 " Special attribute names: n:*, bind-*, on-*.
 syntax match nemoDirective /\<n:[a-zA-Z][a-zA-Z0-9-]*/ contained
@@ -57,6 +66,7 @@ highlight default link nemoBinding       PreProc
 highlight default link nemoHandler       PreProc
 highlight default link nemoString        String
 highlight default link nemoInterp        Normal
+highlight default link nemoTemplateVar   Identifier
 highlight default link nemoInterpDelim   Special
 highlight default link nemoInterpScope   Type
 highlight default link nemoInterpFunc    Function

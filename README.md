@@ -22,6 +22,10 @@ A `.nemo` file is a Vue-like single-file component. The grammar models:
 - **`${ … }` interpolation** — scopes (`var`, `env`, `data`, `route`, `item`)
   as builtin variables, builtin functions (`upper`, `lower`, `trim`, `length`,
   `coalesce`, `env`), member paths, strings, and numbers.
+- **`{{ var }}` template variables** — top-level `<script>` `let`/`const`
+  values interpolated into attribute values and inline text bodies at load
+  time. An unclosed `{{` (or a lone brace) stays verbatim text; `${ … }`
+  interpolation still works alongside it.
 - **Control-flow directives** — `n:for` / `n:if` / `n:key` with their
   expressions: the `in` keyword, iterables, comparison operators, string/number
   literals, and static arrays.

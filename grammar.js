@@ -31,6 +31,8 @@ module.exports = grammar({
         $.style_element,
         $.element,
         $.interpolation,
+        $.template_variable,
+        $.brace_text,
         $.text,
       ),
 
@@ -114,13 +116,19 @@ module.exports = grammar({
         $.unquoted_value,
       ),
 
+    // Attribute values interleave plain fragments with `${...}`
+    // interpolations and `{{ var }}` template variables. Fragments stop at
+    // `{` so both variable forms can match inside the value.
+
     quoted_value_double: ($) =>
       seq(
         '"',
         repeat(
           choice(
             $.interpolation,
+            $.template_variable,
             alias($._attr_fragment_d, $.attribute_value),
+            alias($._attr_brace_d, $.attribute_value),
             alias('$', $.attribute_value),
           ),
         ),
@@ -133,15 +141,17 @@ module.exports = grammar({
         repeat(
           choice(
             $.interpolation,
+            $.template_variable,
             alias($._attr_fragment_s, $.attribute_value),
+            alias($._attr_brace_s, $.attribute_value),
             alias('$', $.attribute_value),
           ),
         ),
         "'",
       ),
 
-    _attr_fragment_d: ($) => token(prec(-1, /([^"$]|\$[^{])+/)),
-    _attr_fragment_s: ($) => token(prec(-1, /([^'$]|\$[^{])+/)),
+    _attr_fragment_d: ($) => token(prec(-1, /([^"${}]|\$[^{])+/)),
+    _attr_fragment_s: ($) => token(prec(-1, /([^'${}]|\$[^{])+/)),
 
     unquoted_value: ($) => /[^\s"'=<>`]+/,
 
@@ -167,6 +177,7 @@ module.exports = grammar({
           $.dir_number,
           $.dir_path,
           $.dir_op,
+          $.template_variable,
         ),
       ),
 
@@ -226,6 +237,35 @@ module.exports = grammar({
     interp_number: ($) => /[0-9]+(\.[0-9]+)?/,
     interp_op: ($) =>
       token(choice('==', '!=', '>=', '<=', '>', '<', '+', '-', '*', '/', ',', '&&', '||')),
+
+    // ---- {{ var }} template variables ------------------------------------
+    //
+    // A top-level inline <script> `let`/`const` value interpolated by the
+    // nemo runtime into attribute values and inline text bodies at load
+    // time (whitespace-insensitive). One whole-match token, mirroring the
+    // runtime's `{{ name }}` scan: the lexer only produces this node when a
+    // closing `}}` follows, so an unclosed `{{` or an empty `{{ }}` fails
+    // the match and degrades to the verbatim brace-text rule below instead
+    // of erroring.
+
+    template_variable: ($) =>
+      token(prec(1, /\{\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}\}/)),
+
+    // Bare brace runs that are not a `{{ name }}` variable: an unclosed
+    // `{{`, an empty `{{ }}`, or lone `{`/`}` (JSON snippets, inline
+    // examples). The nemo runtime leaves these verbatim, so they stay
+    // plain text. Lexically below `template_variable` (prec 1) and `text`
+    // (prec -1) so it only wins when neither matches.
+
+    brace_text: ($) => token(prec(-2, /[{}][^<>${}]*/)),
+
+    // Same, inside quoted attribute values: also stops at quotes so the
+    // value's closing delimiter is never eaten. Aliased to attribute_value
+    // in quoted_value_* below (the runtime interpolates attribute values
+    // verbatim braces the same way).
+
+    _attr_brace_d: ($) => token(prec(-2, /[{}][^"<>${}]*/)),
+    _attr_brace_s: ($) => token(prec(-2, /[{}][^'<>${}]*/)),
 
     // ---- Text ------------------------------------------------------------
 
